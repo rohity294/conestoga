@@ -12,7 +12,11 @@ public class TelemetryExample {
         PrometheusMeterRegistry registry = new PrometheusMeterRegistry(io.micrometer.prometheus.PrometheusConfig.DEFAULT);
         Random random = new Random();
 
-        Gauge.builder("temperature_celsius", () -> random.nextInt(30 - 20 + 1) + 20)
+        // Use a mutable holder for the temperature
+        Double[] temperature = new Double[] {20.0};
+
+        // Register a gauge that reads from the temperature[0] value
+        Gauge.builder("temperature_celsius", temperature, t -> t[0])
              .description("Temperature in Celsius")
              .register(registry);
 
@@ -38,8 +42,9 @@ public class TelemetryExample {
 
         System.out.println("Metrics server running at http://localhost:8080/metrics");
 
-        // Keep the app running
+        // Update temperature every 5 seconds
         while (true) {
+            temperature[0] = 20 + random.nextDouble() * 10; // between 20 and 30
             Thread.sleep(5000);
         }
     }
