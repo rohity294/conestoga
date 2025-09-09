@@ -12,7 +12,7 @@ public class TelemetryExample {
         int max = 10;
         int randomNum = rand.nextInt((max - min) + 1) + min;
 
-        Gauge.builder("temperature_celsius", () -> random.nextInt(20, 30))
+        Gauge.builder("temperature_celsius", () -> random.nextInt(30 - 20 + 1) + 20)
              .description("Temperature in Celsius")
              .register(registry);
 
