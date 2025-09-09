@@ -1,5 +1,6 @@
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
+import io.micrometer.prometheus.PrometheusConfig;
 import java.util.Random;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpHandler;
@@ -9,19 +10,20 @@ import java.net.InetSocketAddress;
 
 public class TelemetryExample {
     public static void main(String[] args) throws Exception {
-        PrometheusMeterRegistry registry = new PrometheusMeterRegistry(io.micrometer.prometheus.PrometheusConfig.DEFAULT);
-        Random random = new Random();
+        // Create Prometheus registry
+        PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
 
-        // Use a mutable holder for the temperature
-        Double[] temperature = new Double[] {20.0};
+        // Temperature holder (mutable)
+        Double[] temperature = new Double[]{20.0};
 
-        // Register a gauge that reads from the temperature[0] value
+        // Register temperature gauge
         Gauge.builder("temperature_celsius", temperature, t -> t[0])
-             .description("Temperature in Celsius")
-             .register(registry);
+            .description("Temperature in Celsius")
+            .register(registry);
 
-        // Start HTTP server on port 8080
-        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+        // Start HTTP server on 0.0.0.0:8080 (to allow external scraping too)
+        System.out.println("Starting HTTP server...");
+        HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", 8080), 0);
         server.createContext("/metrics", new HttpHandler() {
             @Override
             public void handle(HttpExchange exchange) {
@@ -37,14 +39,18 @@ public class TelemetryExample {
                 }
             }
         });
-        server.setExecutor(null);
+        server.setExecutor(null); // default executor
         server.start();
-
         System.out.println("Metrics server running at http://localhost:8080/metrics");
 
-        // Update temperature every 5 seconds
+        // Random temperature generator
+        Random random = new Random();
+
+        // Update the temperature value every 5 seconds
         while (true) {
-            temperature[0] = 20 + random.nextDouble() * 10; // between 20 and 30
+            double newTemp = 20 + random.nextDouble() * 10; // 20–30°C
+            temperature[0] = newTemp;
+            System.out.println("Updated temperature: " + newTemp);
             Thread.sleep(5000);
         }
     }
