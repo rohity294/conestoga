@@ -6,16 +6,16 @@ if [ "$EUID" -ne 0 ]; then
   exec sudo bash "$0" "$@"
 fi
 
-echo "🔄 Updating package list..."
+echo "Updating package list..."
 apt-get update -y
 
-echo "📦 Installing PostgreSQL..."
+echo "Installing PostgreSQL..."
 apt-get install -y postgresql postgresql-contrib
 
-echo "🚀 Starting PostgreSQL service..."
+echo "Starting PostgreSQL service..."
 service postgresql start
 
-echo "👤 Creating database user and database..."
+echo "Creating database user and database..."
 sudo -u postgres psql <<EOF
 DO \$\$
 BEGIN
@@ -31,5 +31,5 @@ CREATE DATABASE labdb OWNER labuser;
 GRANT ALL PRIVILEGES ON DATABASE labdb TO labuser;
 EOF
 
-echo "✅ PostgreSQL is set up and ready to use!"
-echo "🔑 Connect using: psql -h localhost -U labuser -d labdb"
+echo "PostgreSQL is set up and ready to use!"
+echo "Connect using: psql -h localhost -U labuser -d labdb"
