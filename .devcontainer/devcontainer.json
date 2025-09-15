@@ -1,0 +1,14 @@
+{
+  "name": "PostgreSQL Monitoring Lab",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/postgres:1": {
+      "version": "16",
+      "database": "labdb",
+      "user": "postgres",
+      "password": "postgres"
+    }
+  },
+  "forwardPorts": [5432],
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y postgresql-client"
+}
