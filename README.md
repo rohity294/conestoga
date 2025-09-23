@@ -2,7 +2,7 @@
 
 ## Lab Steps
 1. **Open in Codespaces**
-   - Fork this repo
+   - Clone this repo
    - Open in GitHub Codespaces
 
 2. **Install dependencies**
