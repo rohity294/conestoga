@@ -10,9 +10,13 @@ const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-htt
 const { LoggerProvider, SimpleLogRecordProcessor } = require('@opentelemetry/sdk-logs');
 const { OTLPLogExporter } = require('@opentelemetry/exporter-logs-otlp-http');
 
+// -----------------------------------
+// Replace with your Codespaces preview URL for port 4318
+const OTEL_COLLECTOR_URL = 'https://bookish-space-adventure-g7wgqx99q4p295gr-4318.app.github.dev/';
+
 // ---- Tracing ----
 const traceExporter = new OTLPTraceExporter({
-  url: 'http://localhost:4318/v1/traces'
+  url: `${OTEL_COLLECTOR_URL}v1/traces`
 });
 
 const sdk = new NodeSDK({
@@ -22,7 +26,7 @@ const sdk = new NodeSDK({
 
 // ---- Metrics ----
 const metricExporter = new OTLPMetricExporter({
-  url: 'http://localhost:4318/v1/metrics'
+  url: `${OTEL_COLLECTOR_URL}v1/metrics`
 });
 
 const meterProvider = new MeterProvider();
@@ -49,7 +53,7 @@ app.use((req, res, next) => {
 
 // ---- Logs ----
 const logExporter = new OTLPLogExporter({
-  url: 'http://localhost:4318/v1/logs'
+  url: `${OTEL_COLLECTOR_URL}v1/logs`
 });
 
 const loggerProvider = new LoggerProvider();
