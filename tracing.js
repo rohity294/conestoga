@@ -10,9 +10,9 @@ const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-htt
 const { LoggerProvider, SimpleLogRecordProcessor } = require('@opentelemetry/sdk-logs');
 const { OTLPLogExporter } = require('@opentelemetry/exporter-logs-otlp-http');
 
-// -----------------------------------
-// Replace with your Codespaces preview URL for port 4318
-const OTEL_COLLECTOR_URL = 'https://bookish-space-adventure-g7wgqx99q4p295gr-4318.app.github.dev/';
+// -------------------------
+// Inside Docker network, use service name for Collector
+const OTEL_COLLECTOR_URL = 'http://otel-collector:4318/';
 
 // ---- Tracing ----
 const traceExporter = new OTLPTraceExporter({
@@ -36,7 +36,7 @@ const requestCounter = meter.createCounter('http_requests_total');
 const errorCounter = meter.createCounter('http_errors_total');
 const durationHistogram = meter.createHistogram('http_request_duration_ms');
 
-// Hook for RED metrics (express middleware)
+// ---- RED metrics middleware ----
 const express = require('express');
 const app = express();
 
@@ -61,7 +61,7 @@ loggerProvider.addLogRecordProcessor(new SimpleLogRecordProcessor(logExporter));
 
 const logger = loggerProvider.getLogger('monolith-app');
 
-// Replace console.log
+// Replace console.log globally
 global.console.log = (msg) => {
   logger.emit({ severityText: 'INFO', body: msg });
 };

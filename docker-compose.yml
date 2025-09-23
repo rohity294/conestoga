@@ -17,10 +17,10 @@ services:
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:
-      - "4317:4317"
-      - "4318:4318"
-      - "55679:55679"
-      - "9464:9464"
+      - "4317:4317"   # gRPC OTLP
+      - "4318:4318"   # HTTP OTLP
+      - "55679:55679" # optional
+      - "9464:9464"   # Prometheus scrape
 
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -28,9 +28,9 @@ services:
     environment:
       - COLLECTOR_OTLP_ENABLED=true
     ports:
-      - "16686:16686"
-      - "4317"
-      - "4318"
+      - "16686:16686" # Jaeger UI
+      - "4317:4317"
+      - "4318:4318"
 
   prometheus:
     image: prom/prometheus:latest
