@@ -3,25 +3,14 @@ set -e
 
 echo "🔧 Setting up OpenTelemetry Monolith Demo..."
 
-# 1. Install dependencies
+# 1. Install npm dependencies
 echo "Installing npm dependencies..."
 npm install
 
-# 2. Generate config files if not present
+# 2. Generate docker-compose.yml if it doesn't exist
 if [ ! -f docker-compose.yml ]; then
 cat <<'EOF' > docker-compose.yml
-version: "3.9"
-
 services:
-  monolith:
-    build: .
-    container_name: otel-monolith
-    command: npm start
-    ports:
-      - "3000:3000"
-    depends_on:
-      - otel-collector
-
   otel-collector:
     image: otel/opentelemetry-collector:latest
     container_name: otel-collector
@@ -54,6 +43,7 @@ services:
 EOF
 fi
 
+# 3. Generate otel-collector-config.yaml if missing
 if [ ! -f otel-collector-config.yaml ]; then
 cat <<'EOF' > otel-collector-config.yaml
 receivers:
@@ -86,6 +76,7 @@ service:
 EOF
 fi
 
+# 4. Generate prometheus.yml if missing
 if [ ! -f prometheus.yml ]; then
 cat <<'EOF' > prometheus.yml
 global:
@@ -98,19 +89,22 @@ scrape_configs:
 EOF
 fi
 
-# 3. Start observability stack
+# 5. Stop any previous stack to avoid Docker build errors
+docker compose down --remove-orphans
+
+# 6. Start observability stack
 echo "Starting observability stack (Collector, Jaeger, Prometheus)..."
-docker compose up -d --build
+docker compose up -d
 
 echo "Setup complete!"
 
 echo ""
 echo "🌐 Access the following:"
-echo " - Monolith App:     http://localhost:3000"
+echo " - Monolith App (already running via npm start): http://localhost:3000"
 echo " - Jaeger (Traces):  http://localhost:16686"
 echo " - Prometheus:       http://localhost:9090"
 echo ""
-echo "👉 Try generating traffic:"
+echo "👉 Generate traffic from another terminal:"
 echo "   curl http://localhost:3000/"
 echo "   curl http://localhost:3000/error"
 echo ""
