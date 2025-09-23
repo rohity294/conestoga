@@ -7,7 +7,7 @@ echo "🔧 Setting up OpenTelemetry Monolith Demo..."
 echo "Installing npm dependencies..."
 npm install
 
-# 2. Generate docker-compose.yml if it doesn't exist
+# 2. Generate docker-compose.yml if missing
 if [ ! -f docker-compose.yml ]; then
 cat <<'EOF' > docker-compose.yml
 services:
@@ -89,10 +89,13 @@ scrape_configs:
 EOF
 fi
 
-# 5. Stop any previous stack to avoid Docker build errors
-docker compose down --remove-orphans
+# 5. Clean up any old Docker Compose state
+echo "Cleaning up previous Docker Compose state..."
+docker compose down --remove-orphans || true
+docker builder prune -f || true
+rm -f docker-compose.override.yml
 
-# 6. Start observability stack
+# 6. Start observability stack (without building anything)
 echo "Starting observability stack (Collector, Jaeger, Prometheus)..."
 docker compose up -d
 
