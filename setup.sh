@@ -3,14 +3,25 @@ set -e
 
 echo "🔧 Setting up OpenTelemetry Monolith Demo..."
 
-# 1. Install npm dependencies
+# 1. Install npm dependencies for monolith
 echo "Installing npm dependencies..."
 npm install
 
 # 2. Generate docker-compose.yml if missing
 if [ ! -f docker-compose.yml ]; then
 cat <<'EOF' > docker-compose.yml
+version: "3.9"
+
 services:
+  monolith:
+    build: .
+    container_name: otel-monolith
+    command: npm start
+    ports:
+      - "3000:3000"
+    depends_on:
+      - otel-collector
+
   otel-collector:
     image: otel/opentelemetry-collector:latest
     container_name: otel-collector
@@ -30,8 +41,8 @@ services:
       - COLLECTOR_OTLP_ENABLED=true
     ports:
       - "16686:16686"
-      - "4317"
-      - "4318"
+      - "4317:4317"
+      - "4318:4318"
 
   prometheus:
     image: prom/prometheus:latest
@@ -97,18 +108,18 @@ docker image prune -af || true
 rm -f docker-compose.override.yml || true
 rm -rf .docker || true
 
-# 6. Start observability stack with BuildKit disabled & unique project name
+# 6. Build & start the full stack including monolith inside Docker
 PROJECT_NAME="otelstack"
-echo "Starting observability stack (Collector, Jaeger, Prometheus)..."
-DOCKER_BUILDKIT=0 docker compose -p $PROJECT_NAME up -d
+echo "Starting full observability stack (Monolith, Collector, Jaeger, Prometheus)..."
+DOCKER_BUILDKIT=0 docker compose -p $PROJECT_NAME up -d --build
 
-echo "Setup complete!"
+echo "✅ Setup complete!"
 
 echo ""
-echo "🌐 Access the following:"
-echo " - Monolith App (already running via npm start): http://localhost:3000"
-echo " - Jaeger (Traces):  http://localhost:16686"
-echo " - Prometheus:       http://localhost:9090"
+echo "🌐 Access the following services:"
+echo " - Monolith App: http://localhost:3000"
+echo " - Jaeger UI (Traces): http://localhost:16686"
+echo " - Prometheus UI: http://localhost:9090"
 echo ""
 echo "👉 Generate traffic from another terminal:"
 echo "   curl http://localhost:3000/"
