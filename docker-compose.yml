@@ -6,9 +6,11 @@ services:
     container_name: otel-monolith
     command: npm start
     ports:
-      - "3000:3000"
+      - "3000:3000"          # Monolith app port
     depends_on:
       - otel-collector
+    environment:
+      - NODE_ENV=development
 
   otel-collector:
     image: otel/opentelemetry-collector:latest
@@ -17,10 +19,10 @@ services:
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:
-      - "4317:4317"   # gRPC OTLP
-      - "4318:4318"   # HTTP OTLP
-      - "55679:55679" # optional
-      - "9464:9464"   # Prometheus scrape
+      - "4317:4317"           # gRPC OTLP
+      - "4318:4318"           # HTTP OTLP
+      - "55679:55679"         # optional
+      - "9464:9464"           # Prometheus scrape
 
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -28,9 +30,7 @@ services:
     environment:
       - COLLECTOR_OTLP_ENABLED=true
     ports:
-      - "16686:16686" # Jaeger UI
-      - "4319:4317"   # host 4319 -> container 4317
-      - "4320:4318"   # host 4320 -> container 4318
+      - "16686:16686"         # Jaeger UI
 
   prometheus:
     image: prom/prometheus:latest
