@@ -89,11 +89,13 @@ scrape_configs:
 EOF
 fi
 
-# 5. Clean up any old Docker Compose state
-echo "Cleaning up previous Docker Compose state..."
+# 5. Fully clean old Docker Compose state and caches
+echo "Cleaning up previous Docker Compose state and builder cache..."
 docker compose down --remove-orphans || true
-docker builder prune -f || true
-rm -f docker-compose.override.yml
+docker builder prune -af || true
+docker image prune -af || true
+rm -f docker-compose.override.yml || true
+rm -rf .docker || true
 
 # 6. Start observability stack (without building anything)
 echo "Starting observability stack (Collector, Jaeger, Prometheus)..."
