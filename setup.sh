@@ -40,9 +40,7 @@ services:
     environment:
       - COLLECTOR_OTLP_ENABLED=true
     ports:
-      - "16686:16686"
-      - "4317:4317"
-      - "4318:4318"
+      - "16686:16686" # Jaeger UI only
 
   prometheus:
     image: prom/prometheus:latest
@@ -101,8 +99,10 @@ EOF
 fi
 
 # 5. Full cleanup of old state and caches
-echo "Cleaning up previous Docker Compose state and builder cache..."
+echo "Stopping and removing old containers..."
 docker compose down --remove-orphans || true
+
+echo "Cleaning up Docker builder cache and images..."
 docker builder prune -af || true
 docker image prune -af || true
 rm -f docker-compose.override.yml || true

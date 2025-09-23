@@ -10,13 +10,15 @@ const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-htt
 const { LoggerProvider, SimpleLogRecordProcessor } = require('@opentelemetry/sdk-logs');
 const { OTLPLogExporter } = require('@opentelemetry/exporter-logs-otlp-http');
 
+const express = require('express');
+
 // -------------------------
-// Inside Docker network, use service name for Collector
-const OTEL_COLLECTOR_URL = 'http://otel-collector:4318/';
+// Inside Docker network, use Collector service name
+const OTEL_COLLECTOR_HTTP = 'http://otel-collector:4318';
 
 // ---- Tracing ----
 const traceExporter = new OTLPTraceExporter({
-  url: `${OTEL_COLLECTOR_URL}v1/traces`
+  url: `${OTEL_COLLECTOR_HTTP}/v1/traces`,
 });
 
 const sdk = new NodeSDK({
@@ -26,7 +28,7 @@ const sdk = new NodeSDK({
 
 // ---- Metrics ----
 const metricExporter = new OTLPMetricExporter({
-  url: `${OTEL_COLLECTOR_URL}v1/metrics`
+  url: `${OTEL_COLLECTOR_HTTP}/v1/metrics`,
 });
 
 const meterProvider = new MeterProvider();
@@ -37,7 +39,6 @@ const errorCounter = meter.createCounter('http_errors_total');
 const durationHistogram = meter.createHistogram('http_request_duration_ms');
 
 // ---- RED metrics middleware ----
-const express = require('express');
 const app = express();
 
 app.use((req, res, next) => {
@@ -53,12 +54,11 @@ app.use((req, res, next) => {
 
 // ---- Logs ----
 const logExporter = new OTLPLogExporter({
-  url: `${OTEL_COLLECTOR_URL}v1/logs`
+  url: `${OTEL_COLLECTOR_HTTP}/v1/logs`,
 });
 
 const loggerProvider = new LoggerProvider();
 loggerProvider.addLogRecordProcessor(new SimpleLogRecordProcessor(logExporter));
-
 const logger = loggerProvider.getLogger('monolith-app');
 
 // Replace console.log globally
@@ -68,3 +68,6 @@ global.console.log = (msg) => {
 
 // Start OTEL SDK
 sdk.start();
+
+// Export the Express app if needed elsewhere
+module.exports = app;
