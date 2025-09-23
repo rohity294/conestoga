@@ -97,9 +97,10 @@ docker image prune -af || true
 rm -f docker-compose.override.yml || true
 rm -rf .docker || true
 
-# 6. Start observability stack (BuildKit disabled)
+# 6. Start observability stack with BuildKit disabled & unique project name
+PROJECT_NAME="otelstack"
 echo "Starting observability stack (Collector, Jaeger, Prometheus)..."
-DOCKER_BUILDKIT=0 docker compose up -d
+DOCKER_BUILDKIT=0 docker compose -p $PROJECT_NAME up -d
 
 echo "Setup complete!"
 
