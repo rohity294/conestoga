@@ -89,7 +89,7 @@ scrape_configs:
 EOF
 fi
 
-# 5. Fully clean old Docker Compose state and caches
+# 5. Full cleanup of old state and caches
 echo "Cleaning up previous Docker Compose state and builder cache..."
 docker compose down --remove-orphans || true
 docker builder prune -af || true
