@@ -29,8 +29,8 @@ services:
       - COLLECTOR_OTLP_ENABLED=true
     ports:
       - "16686:16686" # Jaeger UI
-      - "4317:4317"
-      - "4318:4318"
+      - "4319:4317"   # host 4319 -> container 4317
+      - "4320:4318"   # host 4320 -> container 4318
 
   prometheus:
     image: prom/prometheus:latest
