@@ -97,9 +97,9 @@ docker image prune -af || true
 rm -f docker-compose.override.yml || true
 rm -rf .docker || true
 
-# 6. Start observability stack (without building anything)
+# 6. Start observability stack (BuildKit disabled)
 echo "Starting observability stack (Collector, Jaeger, Prometheus)..."
-docker compose up -d
+DOCKER_BUILDKIT=0 docker compose up -d
 
 echo "Setup complete!"
 
